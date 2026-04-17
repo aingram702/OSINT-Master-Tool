@@ -1,0 +1,49 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+.venv
+venv/
+ENV/
+
+# OSINT Master Tool - Sensitive Data
+MasterToolDir/.master.key
+MasterToolDir/config.json
+.env
+
+# SubTools Outputs
+SubTools/**/results/
+SubTools/**/output/
+SubTools/**/*.log
+SubTools/**/*.csv
+SubTools/**/*.xlsx
+SubTools/**/*.json
+!SubTools/**/config.json
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
