@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="OSINT Master Tool — Unified GUI for open-source intelligence gathering across usernames, emails, domains, social media, and more.">
+    <title>OSINT Master Tool</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🛡️</text></svg>">
+</head>
+<body>
+    <div class="app-container" id="app">
+        <!-- ============================================================
+             SIDEBAR
+             ============================================================ -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-logo">🛡️</div>
+                <div>
+                    <div class="sidebar-title">OSINT Master Tool</div>
+                    <div class="sidebar-subtitle">Intelligence Suite v1.0</div>
+                </div>
+            </div>
+
+            <nav class="sidebar-nav" id="sidebarNav">
+                <!-- Dashboard -->
+                <div class="nav-section">
+                    <div class="nav-item active" data-page="dashboard" id="nav-dashboard">
+                        <span class="nav-item-icon">📊</span>
+                        <span class="nav-item-label">Dashboard</span>
+                    </div>
+                </div>
+
+                <!-- Tool categories and items will be injected by JS -->
+                <div id="navToolSections"></div>
+
+                <!-- Settings -->
+                <div class="nav-section" style="margin-top: 8px;">
+                    <div class="nav-section-label">System</div>
+                    <div class="nav-item" data-page="jobs" id="nav-jobs">
+                        <span class="nav-item-icon">📜</span>
+                        <span class="nav-item-label">Job History</span>
+                        <span class="nav-item-badge" id="runningJobsBadge" style="display:none;">0</span>
+                    </div>
+                    <div class="nav-item" data-page="settings" id="nav-settings">
+                        <span class="nav-item-icon">⚙️</span>
+                        <span class="nav-item-label">Settings</span>
+                    </div>
+                </div>
+            </nav>
+
+            <div class="sidebar-footer">
+                <div class="sidebar-footer-text">OSINT Master Tool &copy; 2026</div>
+            </div>
+        </aside>
+
+        <!-- ============================================================
+             MAIN CONTENT
+             ============================================================ -->
+        <main class="main-content">
+            <!-- Header Bar -->
+            <header class="header-bar">
+                <div class="header-breadcrumb" id="headerBreadcrumb">
+                    <span class="crumb">OSINT Master Tool</span>
+                    <span class="crumb-sep">›</span>
+                    <span class="crumb-active" id="breadcrumbActive">Dashboard</span>
+                </div>
+                <div class="header-actions">
+                    <button class="header-btn" id="btnToggleSidebar" title="Toggle Sidebar">
+                        <span>☰</span>
+                    </button>
+                </div>
+            </header>
+
+            <!-- Scrollable Content -->
+            <div class="content-body" id="contentBody">
+
+                <!-- ==================== DASHBOARD ==================== -->
+                <div class="page-panel active" id="page-dashboard">
+                    <div class="dashboard-hero">
+                        <h1>OSINT Master Tool</h1>
+                        <p>Unified intelligence gathering across usernames, emails, domains, social media, and network infrastructure.</p>
+                    </div>
+
+                    <div class="dashboard-stats" id="dashboardStats">
+                        <!-- Stats injected by JS -->
+                    </div>
+
+                    <div class="dashboard-categories" id="dashboardCategories">
+                        <!-- Category cards injected by JS -->
+                    </div>
+                </div>
+
+                <!-- ==================== TOOL PAGE (dynamic) ==================== -->
+                <div class="page-panel" id="page-tool">
+                    <div class="tool-header" id="toolHeader">
+                        <div class="tool-header-icon" id="toolHeaderIcon">🔍</div>
+                        <div class="tool-header-info">
+                            <h2 id="toolHeaderName">Tool Name</h2>
+                            <p id="toolHeaderDesc">Tool description</p>
+                        </div>
+                    </div>
+
+                    <!-- Form -->
+                    <div class="tool-form-card">
+                        <h3>Configuration</h3>
+                        <div class="form-grid" id="toolFormGrid">
+                            <!-- Dynamic form fields injected by JS -->
+                        </div>
+                    </div>
+
+                    <!-- Actions -->
+                    <div class="tool-actions">
+                        <button class="btn btn-primary" id="btnRunTool">
+                            <span>▶</span> Run Tool
+                        </button>
+                        <button class="btn btn-danger" id="btnStopTool" style="display:none;">
+                            <span>⏹</span> Stop
+                        </button>
+                        <button class="btn btn-ghost" id="btnClearOutput">
+                            <span>🗑️</span> Clear Output
+                        </button>
+                    </div>
+
+                    <!-- Output Terminal -->
+                    <div class="terminal-card" id="terminalCard">
+                        <div class="terminal-header">
+                            <div class="terminal-dots">
+                                <div class="terminal-dot red"></div>
+                                <div class="terminal-dot yellow"></div>
+                                <div class="terminal-dot green"></div>
+                            </div>
+                            <div class="terminal-title" id="terminalTitle">output</div>
+                            <div class="terminal-status" id="terminalStatus" style="display:none;">IDLE</div>
+                        </div>
+                        <div class="terminal-body" id="terminalBody">
+                            <div class="terminal-placeholder">
+                                <div class="placeholder-icon">⌨️</div>
+                                <div>Configure the tool above and click <strong>Run Tool</strong> to begin.</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Built-in Result (for built-in tools) -->
+                    <div id="builtinResultArea"></div>
+                </div>
+
+                <!-- ==================== JOB HISTORY PAGE ==================== -->
+                <div class="page-panel" id="page-jobs">
+                    <div class="tool-header">
+                        <div class="tool-header-icon">📜</div>
+                        <div class="tool-header-info">
+                            <h2>Job History</h2>
+                            <p>Review past and currently running tool executions.</p>
+                        </div>
+                    </div>
+                    <div class="job-history-card">
+                        <h3>Recent Jobs</h3>
+                        <div id="jobHistoryList">
+                            <div class="terminal-placeholder">
+                                <div class="placeholder-icon">📭</div>
+                                <div>No jobs have been run yet.</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ==================== SETTINGS PAGE ==================== -->
+                <div class="page-panel" id="page-settings">
+                    <div class="tool-header">
+                        <div class="tool-header-icon">⚙️</div>
+                        <div class="tool-header-info">
+                            <h2>Settings</h2>
+                            <p>Configure API keys and application preferences.</p>
+                        </div>
+                    </div>
+
+                    <div class="settings-section">
+                        <h3>🔑 API Keys</h3>
+                        <p class="settings-desc">API keys are stored locally with symmetric encryption (Fernet). They never leave your machine.</p>
+                        <div class="form-grid" id="settingsApiKeysGrid">
+                            <!-- Dynamic API key fields injected by JS -->
+                        </div>
+                        <div style="margin-top: 16px;">
+                            <button class="btn btn-primary" id="btnSaveSettings">
+                                <span>💾</span> Save Settings
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="settings-section">
+                        <h3>ℹ️ About</h3>
+                        <p class="settings-desc">OSINT Master Tool v1.0 — A unified GUI for open-source intelligence gathering.</p>
+                        <p class="settings-desc">Integrates 15+ OSINT tools and 8 built-in utilities into a single interface with real-time output streaming.</p>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <!-- Toast Container -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <script src="/static/js/app.js"></script>
+</body>
+</html>
