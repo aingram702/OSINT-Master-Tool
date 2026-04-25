@@ -1,0 +1,41 @@
+sudo: false
+language: python
+cache: pip
+dist: xenial
+
+python:
+- 2.7
+- 3.7
+
+before_install:
+- pip install -U pip wheel setuptools
+
+install:
+- pip install -e .[dev]
+
+before_script:
+- ci/travis/before_script.sh
+
+script:
+- python -m coverage run -m unittest discover -v
+
+after_success:
+- python -m codecov
+- python -m codacy -r coverage.xml
+
+deploy:
+  provider: pypi
+  distributions: sdist bdist_wheel
+  on:
+    python: 3.7
+    tags: true
+    repo: althonos/InstaLooter
+  server: https://upload.pypi.org/legacy/
+  skip_upload_docs: true
+  user: althonos
+  password:
+    secure: ExaoUT+/7v8VJp/vsllDm9AsO3/6s7Nka5rf+0TVz8Z7pZ+azFXK5hZmQ6nTtvSRYpZCfGH8ecYLbE0ek02BFqLc25/VfMfPao+6eUh1v3MGvHxH9ml+/9aCwWIv5C/T5dGURVj0udXxXuuTsdJwzxrb+K9taVZSjBbk6Ti8Fdu8yRMhOvI4xoiG69tunk6IXnOZjDCQix8O3Cn0OfA/zeD0IX1n8SVlKwsS+dOgFAJCujP865VuUh+2kM63Xx3OEb3caBGc1HXaVxNRXdhGykFeWrT4Mzrzd0T458Odc3S+DJG+2WVZbNC+chGAUBMq77z8JVirdWzydhdnhzi0DNZohRO0itstz53DuyqAtyTZ04xLO3+06svU5grdwilZGwy2KNZ1S1wTRlUgpxBhRL6dwHEAfaq4JlKlijEJJnFBMq2O2TKB/h+CdIALfWKSRNfOUm2GdG4ZwZOOLczbe4ATYoxGsqGP/lqnH2/iCrJFtoYmdFR8QZxJtNNwcNvVLT3MNx7eze7OpGgHWQjJq/m5hHoKJx6yW6U5XiRSt5gEowiq7vNrdwHSDRLe5CZJVndkiwelQQN5womKtWHFb1w9DRgBFj0ZscgJuxrsRl9uLfqcLB77tyS9q4BpQKsMIDw0P2bVI/P50KUsG0OUjHkstxS4nl9DLsxVPb+NmiA=
+
+notifications:
+  email:
+  - althonosdev@gmail.com
