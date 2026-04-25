@@ -369,7 +369,7 @@ TOOLS = {
         "description": "Full-featured web reconnaissance framework with modular plugins.",
         "icon": "🔬",
         "executable": "python",
-        "script": os.path.join(SUBTOOLS_DIR, "NetworkDomainRecon", "recon-ng", "recon-ng"),
+        "script": os.path.join(SUBTOOLS_DIR, "NetworkDomainRecon", "recon-ng", "recon-ng", "recon-ng"),
         "cwd": os.path.join(SUBTOOLS_DIR, "NetworkDomainRecon", "recon-ng"),
         "args": [
             {"id": "workspace", "label": "Workspace", "type": "text", "flag": "-w",

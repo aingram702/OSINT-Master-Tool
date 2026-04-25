@@ -1,3 +1,0 @@
-discovery
-lib
-parsers
