@@ -17,6 +17,7 @@ import sys
 import threading
 import time
 import urllib.request
+import urllib.error
 import uuid
 from collections import deque
 from datetime import datetime
@@ -104,6 +105,8 @@ def is_safe_path(path):
     blocked_patterns = [
         "windows/system32", "windows/syswow64", "/etc/passwd", "/etc/shadow",
         "/etc/hosts", "program files", "programdata", "/proc/", "/sys/",
+        "/.ssh", "/.aws", "appdata", "local/google", "local/brave",
+        "local/microsoft/edge", "mozilla/firefox", "/.config", ".master.key", ".git", ".env"
     ]
     for pattern in blocked_patterns:
         if pattern in low:
@@ -136,6 +139,18 @@ def _validate_outbound_url(url):
     except Exception:
         return False, "Invalid URL format."
     return True, None
+
+
+class SafeRedirectHandler(urllib.request.HTTPRedirectHandler):
+    def redirect_request(self, req, fp, code, msg, headers, newurl):
+        safe, err = _validate_outbound_url(newurl)
+        if not safe:
+            raise urllib.error.URLError(f"Unsafe redirect blocked: {err}")
+        return super().redirect_request(req, fp, code, msg, headers, newurl)
+
+def safe_urlopen(req, timeout=10):
+    opener = urllib.request.build_opener(SafeRedirectHandler)
+    return opener.open(req, timeout=timeout)
 
 # ---------------------------------------------------------------------------
 # Job Management
@@ -400,7 +415,7 @@ def _builtin_http_headers(params):
         return {"error": err}
     try:
         req = urllib.request.Request(url, method="HEAD", headers={"User-Agent": "OSINT-Master-Tool/1.0"})
-        with urllib.request.urlopen(req, timeout=10) as resp:  # nosec B310
+        with safe_urlopen(req, timeout=10) as resp:  # nosec B310
             headers = dict(resp.headers)
             security_headers = [
                 "Strict-Transport-Security", "Content-Security-Policy", "X-Content-Type-Options",
@@ -464,7 +479,7 @@ def _builtin_subdomain_finder(params):
     try:
         url = f"https://crt.sh/?q=%.{domain}&output=json"
         req = urllib.request.Request(url, headers={"User-Agent": "OSINT-Master-Tool/1.0"})
-        with urllib.request.urlopen(req, timeout=20) as resp:  # nosec B310
+        with safe_urlopen(req, timeout=20) as resp:  # nosec B310
             data = json.loads(resp.read().decode())
         subdomains = set()
         for entry in data:
@@ -494,7 +509,7 @@ def _builtin_url_unshortener(params):
             if not current.startswith(("http://", "https://")):
                 break
             req = urllib.request.Request(current, method="HEAD", headers={"User-Agent": "OSINT-Master-Tool/1.0"})
-            opener = urllib.request.build_opener(urllib.request.HTTPRedirectHandler)
+            opener = urllib.request.build_opener(SafeRedirectHandler)
             try:
                 resp = opener.open(req, timeout=10) # nosec B310
                 final = resp.url
@@ -529,7 +544,7 @@ def _builtin_tech_detector(params):
         return {"error": err}
     try:
         req = urllib.request.Request(url, headers={"User-Agent": "OSINT-Master-Tool/1.0"})
-        with urllib.request.urlopen(req, timeout=15) as resp:  # nosec B310
+        with safe_urlopen(req, timeout=15) as resp:  # nosec B310
             headers = dict(resp.headers)
             body = resp.read(50000).decode("utf-8", errors="replace")
 
@@ -735,6 +750,7 @@ def api_stream(job_id):
 @app.route("/api/stop/<job_id>", methods=["POST"])
 def api_stop(job_id):
     """Stop a running job."""
+    validate_csrf()
     if job_id not in jobs:
         return jsonify({"error": "Job not found"}), 404
 

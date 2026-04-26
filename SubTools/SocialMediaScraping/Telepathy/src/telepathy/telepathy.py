@@ -1741,185 +1741,185 @@ class Telepathy_cli:
                     await group_channel.analyze_group_channel()
 
     class PlaceholderClass:
-    def __init__(self):
-        self.d500 = 0
-        self.d1000 = 0
-        self.d2000 = 0
-        self.d3000 = 0
-        self.save_file = ""
-        self.total = 0
+        def __init__(self):
+            self.d500 = 0
+            self.d1000 = 0
+            self.d2000 = 0
+            self.d3000 = 0
+            self.save_file = ""
+            self.total = 0
 
-async def analyze_location(self, _target):
-    print(
-        Fore.GREEN
-        + " [!] "
-        + Style.RESET_ALL
-        + "Searching for users near "
-        + _target
-        + "\n"
-    )
-
-    latitude, longitude = map(float, _target.split(','))
-
-    locations_file = self.create_path(
-        os.path.join(self.telepathy_file, self.config_p["telepathy"]["location"])
-    )
-    save_file = (
-        locations_file
-        + f"{latitude}_{longitude}_locations_{self.filetime_clean}.csv"
-    )
-
-    locations_list = []
-    l_save_list = []
-
-    result = await self.client(
-        functions.contacts.GetLocatedRequest(
-            geo_point=types.InputGeoPoint(
-                lat=latitude,
-                long=longitude,
-                accuracy_radius=42,
-            ),
-            self_expires=42,
+    async def analyze_location(self, _target):
+        print(
+            Fore.GREEN
+            + " [!] "
+            + Style.RESET_ALL
+            + "Searching for users near "
+            + _target
+            + "\n"
         )
-    )
 
-    for user in result.updates[0].peers:
-        try:
-            ID = 0
-            distance = 0
-            if hasattr(user, "peer"):
-                ID = user.peer.user_id
+        latitude, longitude = map(float, _target.split(','))
 
-            if hasattr(user, "distance"):
-                distance = user.distance
+        locations_file = self.create_path(
+            os.path.join(self.telepathy_file, self.config_p["telepathy"]["location"])
+        )
+        save_file = (
+            locations_file
+            + f"{latitude}_{longitude}_locations_{self.filetime_clean}.csv"
+        )
 
-            locations_list.append([ID, distance])
-            l_save_list.append([ID, distance, latitude, longitude, self.filetime])
-        except:
-            pass
+        locations_list = []
+        l_save_list = []
 
-    user_df = pd.DataFrame(locations_list, columns=["User_ID", "Distance"])
+        result = await self.client(
+            functions.contacts.GetLocatedRequest(
+                geo_point=types.InputGeoPoint(
+                    lat=latitude,
+                    long=longitude,
+                    accuracy_radius=42,
+                ),
+                self_expires=42,
+            )
+        )
 
-    l_save_df = pd.DataFrame(
-        l_save_list,
-        columns=["User_ID", "Distance", "Latitude", "Longitude", "Date_retrieved"],
-    )
+        for user in result.updates[0].peers:
+            try:
+                ID = 0
+                distance = 0
+                if hasattr(user, "peer"):
+                    ID = user.peer.user_id
 
-    distance_obj = PlaceholderClass()
+                if hasattr(user, "distance"):
+                    distance = user.distance
 
-    for account, distance in user_df.itertuples(index=False):
-        account = int(account)
-        my_user = await self.client.get_entity(types.PeerUser(account))
-        user_id = my_user.id
-        distance = int(distance)
+                locations_list.append([ID, distance])
+                l_save_list.append([ID, distance, latitude, longitude, self.filetime])
+            except:
+                pass
 
-        if distance == 500:
-            distance_obj.d500 += 1
-        elif distance == 1000:
-            distance_obj.d1000 += 1
-        elif distance == 2000:
-            distance_obj.d2000 += 1
-        elif distance == 3000:
-            distance_obj.d3000 += 1
+        user_df = pd.DataFrame(locations_list, columns=["User_ID", "Distance"])
 
-    with open(save_file, "w+", encoding="utf-8") as f:
-        l_save_df.to_csv(f, sep=";", index=False)
+        l_save_df = pd.DataFrame(
+            l_save_list,
+            columns=["User_ID", "Distance", "Latitude", "Longitude", "Date_retrieved"],
+        )
+
+        distance_obj = PlaceholderClass()
+
+        for account, distance in user_df.itertuples(index=False):
+            account = int(account)
+            my_user = await self.client.get_entity(types.PeerUser(account))
+            user_id = my_user.id
+            distance = int(distance)
+
+            if distance == 500:
+                distance_obj.d500 += 1
+            elif distance == 1000:
+                distance_obj.d1000 += 1
+            elif distance == 2000:
+                distance_obj.d2000 += 1
+            elif distance == 3000:
+                distance_obj.d3000 += 1
+
+        with open(save_file, "w+", encoding="utf-8") as f:
+            l_save_df.to_csv(f, sep=";", index=False)
     
-    total = len(locations_list)
-    distance_obj.save_file = save_file
-    distance_obj.total = total
-    print_shell("location_report", distance_obj)
+        total = len(locations_list)
+        distance_obj.save_file = save_file
+        distance_obj.total = total
+        print_shell("location_report", distance_obj)
 
-    # Display user and channel information
-    current_time = datetime.datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%S+00:00")
+        # Display user and channel information
+        current_time = datetime.datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%S+00:00")
 
-    for user in result.users:
-        name = str(user.first_name) + (" " + str(user.last_name) if user.last_name else "")
-        user_status = "Not found"
-        last_seen = ""
+        for user in result.users:
+            name = str(user.first_name) + (" " + str(user.last_name) if user.last_name else "")
+            user_status = "Not found"
+            last_seen = ""
 
-        if user.status is not None:
-            if isinstance(user.status, types.UserStatusRecently):
-                user_status = "Recently (within two days)"
-            elif isinstance(user.status, types.UserStatusOffline):
-                last_seen = user.status.was_online.strftime("%Y-%m-%dT%H:%M:%S+00:00")
-                user_status = "Offline"
-            elif isinstance(user.status, types.UserStatusOnline):
-                user_status = "Online"
-            elif isinstance(user.status, types.UserStatusLastMonth):
-                user_status = "Between a week and a month"
-            elif isinstance(user.status, types.UserStatusLastWeek):
-                user_status = "Between three and seven days"
-            elif isinstance(user.status, types.UserStatusEmpty):
-                user_status = "Not found"
+            if user.status is not None:
+                if isinstance(user.status, types.UserStatusRecently):
+                    user_status = "Recently (within two days)"
+                elif isinstance(user.status, types.UserStatusOffline):
+                    last_seen = user.status.was_online.strftime("%Y-%m-%dT%H:%M:%S+00:00")
+                    user_status = "Offline"
+                elif isinstance(user.status, types.UserStatusOnline):
+                    user_status = "Online"
+                elif isinstance(user.status, types.UserStatusLastMonth):
+                    user_status = "Between a week and a month"
+                elif isinstance(user.status, types.UserStatusLastWeek):
+                    user_status = "Between three and seven days"
+                elif isinstance(user.status, types.UserStatusEmpty):
+                    user_status = "Not found"
 
-        distance = -1
-        for peer in result.updates[0].peers:
-            if not isinstance(peer, types.PeerLocated):
-                continue
-            if peer.peer.user_id == user.id:
-                distance = peer.distance
-                break
+            distance = -1
+            for peer in result.updates[0].peers:
+                if not isinstance(peer, types.PeerLocated):
+                    continue
+                if peer.peer.user_id == user.id:
+                    distance = peer.distance
+                    break
 
-        if distance != -1:
-            user_record = {
-                "user_id": user.id,
+            if distance != -1:
+                user_record = {
+                    "user_id": user.id,
+                    "name": name,
+                    "username": user.username if user.username else "",
+                    "distance": f"{distance}m",
+                    "phone_number": user.phone,
+                    "access_hash": user.access_hash,
+                    "latitude": latitude,
+                    "longitude": longitude,
+                    "retrieval_time": current_time,
+                    "last_seen": user_status,
+                }
+
+                for key, value in user_record.items():
+                    print(f"{key}: {value}")
+                print()  # Blank line for readability
+
+        for channel in result.chats:
+            name = channel.title
+            date = channel.date.strftime("%Y-%m-%dT%H:%M:%S+00:00")
+            channel_username = channel.username if channel.username else None
+
+            group_status = "None"
+            if channel.restriction_reason is not None:
+                restrictions = channel.restriction_reason
+                ios = android = None
+                for restriction in restrictions:
+                    if restriction.platform == 'android':
+                        android = f"restricted on Android due to {restriction.reason}"
+                    if restriction.platform == 'ios':
+                        ios = f"restricted on iOS due to {restriction.reason}"
+
+                if ios and android:
+                    group_status = f"{ios} and {android}"
+                elif android:
+                    group_status = android
+                elif ios:
+                    group_status = ios
+
+            coordinates = f"{latitude}, {longitude}"
+            url = f"https://t.me/{channel_username}" if channel_username else None
+
+            channel_record = {
+                "channel_id": channel.id,
                 "name": name,
-                "username": user.username if user.username else "",
-                "distance": f"{distance}m",
-                "phone_number": user.phone,
-                "access_hash": user.access_hash,
+                "username": channel_username if channel_username else "",
+                "access_hash": channel.access_hash,
+                "participants_count": channel.participants_count,
+                "restrictions": group_status,
                 "latitude": latitude,
                 "longitude": longitude,
-                "retrieval_time": current_time,
-                "last_seen": user_status,
+                "url": url,
+                "retrieval_time": current_time
             }
 
-            for key, value in user_record.items():
+            for key, value in channel_record.items():
                 print(f"{key}: {value}")
             print()  # Blank line for readability
-
-    for channel in result.chats:
-        name = channel.title
-        date = channel.date.strftime("%Y-%m-%dT%H:%M:%S+00:00")
-        channel_username = channel.username if channel.username else None
-
-        group_status = "None"
-        if channel.restriction_reason is not None:
-            restrictions = channel.restriction_reason
-            ios = android = None
-            for restriction in restrictions:
-                if restriction.platform == 'android':
-                    android = f"restricted on Android due to {restriction.reason}"
-                if restriction.platform == 'ios':
-                    ios = f"restricted on iOS due to {restriction.reason}"
-
-            if ios and android:
-                group_status = f"{ios} and {android}"
-            elif android:
-                group_status = android
-            elif ios:
-                group_status = ios
-
-        coordinates = f"{latitude}, {longitude}"
-        url = f"https://t.me/{channel_username}" if channel_username else None
-
-        channel_record = {
-            "channel_id": channel.id,
-            "name": name,
-            "username": channel_username if channel_username else "",
-            "access_hash": channel.access_hash,
-            "participants_count": channel.participants_count,
-            "restrictions": group_status,
-            "latitude": latitude,
-            "longitude": longitude,
-            "url": url,
-            "retrieval_time": current_time
-        }
-
-        for key, value in channel_record.items():
-            print(f"{key}: {value}")
-        print()  # Blank line for readability
 
     async def telepangulate(self):
         current_set = None

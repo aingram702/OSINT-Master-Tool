@@ -60,7 +60,8 @@ TOOLS = {
         "description": "Find usernames across 400+ social networks.",
         "icon": "🔍",
         "executable": "python",
-        "script": os.path.join(SUBTOOLS_DIR, "Username", "sherlock", "sherlock_project", "sherlock.py"),
+        "script": "-m",
+        "module_name": "sherlock_project",
         "cwd": os.path.join(SUBTOOLS_DIR, "Username", "sherlock"),
         "args": [
             {"id": "username", "label": "Username(s)", "type": "text", "required": True,
@@ -395,7 +396,7 @@ TOOLS = {
         "icon": "📊",
         "executable": "python",
         "script": "-m",
-        "module_name": "snscrape",
+        "module_name": "snscrape._cli",
         "cwd": os.path.join(SUBTOOLS_DIR, "SocialMediaScraping", "snscrape"),
         "args": [
             {"id": "platform", "label": "Platform", "type": "select", "required": True,
@@ -492,7 +493,8 @@ TOOLS = {
         "description": "Telegram OSINT toolkit — analyze channels, groups, members, and messages.",
         "icon": "✈️",
         "executable": "python",
-        "script": os.path.join(SUBTOOLS_DIR, "SocialMediaScraping", "Telepathy", "src", "telepathy", "telepathy.py"),
+        "script": "-m",
+        "module_name": "src.telepathy.telepathy",
         "cwd": os.path.join(SUBTOOLS_DIR, "SocialMediaScraping", "Telepathy"),
         "args": [
             {"id": "target", "label": "Target Channel/Group", "type": "text", "required": True,

@@ -15,7 +15,10 @@ try:
     import gnureadline  
 except: 
     is_windows = True
-    import pyreadline
+    try:
+        import pyreadline3 as pyreadline
+    except ImportError:
+        import pyreadline
 
 
 def printlogo():
