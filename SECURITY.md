@@ -6,7 +6,7 @@ If you discover a security vulnerability in OSINT Master Tool, please report it 
 
 **Do NOT open a public GitHub issue for security vulnerabilities.**
 
-Instead, please email: **[security contact — update with your preferred email]**
+Instead, please email: **aingram702@hide702.aleeas.com**
 
 Include the following in your report:
 - A description of the vulnerability
